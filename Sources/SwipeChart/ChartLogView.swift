@@ -17,29 +17,37 @@ public class ChartLogView: UIScrollView {
     
     private var chartContentHeight: CGFloat = 0
     private var chartContentWidth: CGFloat = 0
-    
+    private var barIndexBasedOnScrollOffset: Int = 0
+  
     var maxBarWidth: CGFloat = 0
     var fixedBarWidth: CGFloat = 20
     var tenBarWidth: CGFloat = 10
     var minBarWidth: CGFloat = 3
     var minBarPadWidth: CGFloat = 1
-    
-    private var pad10: CGFloat = 0
-    
+    private var pad10: CGFloat = 0  
+   
     var isFirstVisit = true
     
-    private var barIndexBasedOnScrollOffset: Int = 0
     public var defaultBarWidth: CGFloat = 10  
+    public var gridDevider: CGFloat = 32
+
 }
 
-public  extension ChartLogView {
+public extension ChartLogView {
     var barAndPad: CGFloat {
         (selfLastUpdateBarWidth + pad10)
     }
 }
 
-public  extension ChartLogView {
+public extension ChartLogView {
     
+    public func setupColors(rise: UIColor, down: UIColor, text: UIColor, textBack: UIColor, xGrid: UIColor, yGrid: UIColor) {
+        barView.setupColors(rise: rise, down: down, text: text, textBack: textBack, xGrid: xGrid, yGrid: yGrid)
+    }
+    public func setupChartBackgroud(_ color: UIColor) {
+        barView.backgroundColor = color
+    }
+
     func feed(datas: [BarDto]) {
         bars = datas
         barView.feed(datas: datas)
