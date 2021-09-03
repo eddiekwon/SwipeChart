@@ -21,14 +21,14 @@ public class ClubView: UIView {
     private var upColor: CGColor = UIColor.red.cgColor
     private var downColor: CGColor = UIColor.blue.cgColor
     private var textColor: CGColor = UIColor.black.cgColor
-    private var textBackColor: CGColor = UIColor.white.alpha(0.4).cgColor
+    private var textBackColor: CGColor = UIColor.white.withAlphaComponent(0.2).cgColor
     
     private var xGridDarkColor: CGColor = UIColor.gray.withAlphaComponent(0.2).cgColor
     private var yGridDarkColor: CGColor = UIColor.gray.withAlphaComponent(0.2).cgColor
     private var upDarkColor: CGColor = UIColor.red.cgColor
     private var downDarkColor: CGColor = UIColor.blue.cgColor
     private var textDarkColor: CGColor = UIColor.black.cgColor
-    private var textBackDarkColor: CGColor = UIColor.white.alpha(0.4).cgColor
+    private var textBackDarkColor: CGColor = UIColor.white.withAlphaComponent(0.2).cgColor
     
     private var useTextPrice: Bool = false
    
@@ -106,10 +106,10 @@ private extension ClubView {
  
         let strokeColor: CGColor
         if startY > endY{
-            strokeColor = UIColor.upColor
+            strokeColor = upColor
            
         } else if startY < endY {
-            strokeColor = UIColor.downColor
+            strokeColor = downColor
             
         } else {
             strokeColor = UIColor.black.cgColor
@@ -137,6 +137,52 @@ private extension ClubView {
         return textLayer
     }
     
+}
+
+extension ClubView {
+    func drawGrids(viewSize: CGSize) {
+        
+        let staticSize = viewSize.width / gridDevider
+        
+        let gridHeightSize = staticSize
+        let gridWidthSize = staticSize
+        
+        var xCurrentPos: CGFloat = 0
+        while xCurrentPos <= viewSize.width {
+            addVerticalGrid(xCurrentPos)
+            xCurrentPos += gridWidthSize
+        }
+        
+        var yCurrentPos: CGFloat = 0
+        while yCurrentPos <= viewSize.height {
+            addHorizontalGrid(yCurrentPos)
+            yCurrentPos += gridHeightSize
+        }
+    }
+    
+    func addVerticalGrid(_ xf: CGFloat) {
+        let Path = UIBezierPath()
+        Path.move(to: CGPoint(x: xf, y: 0))
+        Path.addLine(to: CGPoint(x: xf, y: frame.height))
+        Path.close()
+        
+        let shapeLayer1 = CAShapeLayer()
+        shapeLayer1.path = Path.cgPath
+        shapeLayer1.strokeColor = UIColor.gray.withAlphaComponent(0.2).cgColor
+        layer.addSublayer(shapeLayer1)
+    }
+    
+    func addHorizontalGrid(_ yf: CGFloat) {
+        let Path = UIBezierPath()
+        Path.move(to: CGPoint(x: 0, y: yf))
+        Path.addLine(to: CGPoint(x: frame.width, y: yf))
+        Path.close()
+        
+        let shapeLayer2 = CAShapeLayer()
+        shapeLayer2.path = Path.cgPath
+        shapeLayer2.strokeColor = UIColor.gray.withAlphaComponent(0.2).cgColor
+        layer.addSublayer(shapeLayer2)
+    }
 }
 
 extension ClubView {
