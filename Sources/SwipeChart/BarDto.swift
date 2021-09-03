@@ -7,7 +7,7 @@
 
 import UIKit
 
-public struct BarDto: Codable {
+public struct BarDto {
     public let candle_date_time_utc: String
     public let candle_date_time_local: String
     public let opening_price: Double
