@@ -10,24 +10,23 @@ import UIKit
 private let errorValue: CGFloat = -99
 
 public class ClubView: UIView {
-    var chartFullHeight: CGFloat = 0
-    var chartDatas: [BarDto] = []
+    public var chartFullHeight: CGFloat = 0
+    public var chartDatas: [BarDto] = []
      
-    var xCurBarPos: CGFloat = 0
-    var paddingBar: CGFloat = errorValue
+    public var xCurBarPos: CGFloat = 0
+    public var paddingBar: CGFloat = errorValue
   
-    func prepareFirstTime(barWidth: CGFloat, paddingSize: CGFloat, viewHeight: CGFloat) {
+    public func prepareFirstTime(barWidth: CGFloat, paddingSize: CGFloat, viewHeight: CGFloat) {
         paddingBar = paddingSize
         xCurBarPos = 0
         chartFullHeight = viewHeight
     }
     
-    func feed(datas: [BarDto]) {
+    public func feed(datas: [BarDto]) {
         chartDatas = datas
     }
-    
-    // barWidth는 redraw를 통해서 전달하므로 필요 없음
-    func prepare(paddingSize: CGFloat, newScrollOffset: CGFloat, viewHeight: CGFloat) {
+     
+    public  func prepare(paddingSize: CGFloat, newScrollOffset: CGFloat, viewHeight: CGFloat) {
         paddingBar = paddingSize
         xCurBarPos = newScrollOffset
         chartFullHeight = viewHeight
@@ -35,7 +34,7 @@ public class ClubView: UIView {
 }
 
 public extension ClubView {
-    func redraw(barWidth: CGFloat, range: CountableClosedRange<Int>) {
+    public func redraw(barWidth: CGFloat, range: CountableClosedRange<Int>) {
         assert(chartFullHeight > 0, "should call prepare")
         let cutBars = Array<BarDto>(self.chartDatas[range])
         let dataCut = convertAxis(chartDatas: cutBars)
