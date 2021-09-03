@@ -8,27 +8,27 @@
 import UIKit
 
 public struct BarDto: Codable {
-    let candle_date_time_utc: String
-    let candle_date_time_local: String
-    let opening_price: Double
-    let high_price: Double
-    let low_price: Double
-    let trade_price: Double
-    let timestamp: TimeInterval?
-    let candle_acc_trade_price: Double
-    let candle_acc_trade_volume: Double
-    let unit: Int?
+    public let candle_date_time_utc: String
+    public let candle_date_time_local: String
+    public let opening_price: Double
+    public let high_price: Double
+    public let low_price: Double
+    public let trade_price: Double
+    public let timestamp: TimeInterval?
+    public let candle_acc_trade_price: Double
+    public let candle_acc_trade_volume: Double
+    public let unit: Int?
     
-    var openVal: CGFloat {
+    public var openVal: CGFloat {
         CGFloat(opening_price)
     }
-    var closeVal: CGFloat {
+    public var closeVal: CGFloat {
         CGFloat(trade_price)
     }
-    var highVal: CGFloat {
+    public var highVal: CGFloat {
         CGFloat(high_price)
     }
-    var lowVal: CGFloat {
+    public var lowVal: CGFloat {
         CGFloat(low_price)
     }
 }
