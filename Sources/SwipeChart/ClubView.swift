@@ -16,6 +16,32 @@ public class ClubView: UIView {
     public var xCurBarPos: CGFloat = 0
     public var paddingBar: CGFloat = errorValue
   
+    private var xGridColor: CGColor = UIColor.gray.withAlphaComponent(0.2).cgColor
+    private var yGridColor: CGColor = UIColor.gray.withAlphaComponent(0.2).cgColor
+    private var upColor: CGColor = UIColor.red.cgColor
+    private var downColor: CGColor = UIColor.blue.cgColor
+    private var textColor: CGColor = UIColor.black.cgColor
+    private var textBackColor: CGColor = UIColor.white.alpha(0.4).cgColor
+    
+    private var xGridDarkColor: CGColor = UIColor.gray.withAlphaComponent(0.2).cgColor
+    private var yGridDarkColor: CGColor = UIColor.gray.withAlphaComponent(0.2).cgColor
+    private var upDarkColor: CGColor = UIColor.red.cgColor
+    private var downDarkColor: CGColor = UIColor.blue.cgColor
+    private var textDarkColor: CGColor = UIColor.black.cgColor
+    private var textBackDarkColor: CGColor = UIColor.white.alpha(0.4).cgColor
+    
+    private var useTextPrice: Bool = false
+   
+    public func setupColors(rise: UIColor, down: UIColor, text: UIColor, textBack: UIColor, xGrid: UIColor, yGrid: UIColor) {
+        upColor = rise.cgColor
+        downColor = down.cgColor
+        textColor = text.cgColor
+        textBackColor = textBack.cgColor
+        xGridColor = xGrid.cgColor
+        yGridColor = yGrid.cgColor
+    }
+    public var gridDevider: CGFloat = 32
+    
     public func prepareFirstTime(barWidth: CGFloat, paddingSize: CGFloat, viewHeight: CGFloat) {
         paddingBar = paddingSize
         xCurBarPos = 0
@@ -42,6 +68,7 @@ public extension ClubView {
         for data in dataCut {
             self.drawSingleBar(width: barWidth, prices: data)
         }
+         drawGrids(viewSize: self.frame.size)
     }
 }
 
@@ -62,7 +89,9 @@ private extension ClubView {
         
         layer.addSublayer(lowHighLayer)
         layer.addSublayer(barLayer)
-        layer.addSublayer(textLayer)
+        if let randomNumbers = [1, 2, 3, 4, 5].randomElement(), randomNumbers == 1 {
+            layer.addSublayer(textLayer)
+        } 
     }
      
     func makeBar(_ xf: CGFloat , startY: CGFloat, endY: CGFloat, barwidth: CGFloat, isLowHigh:Bool = false) -> CAShapeLayer {
@@ -77,10 +106,10 @@ private extension ClubView {
  
         let strokeColor: CGColor
         if startY > endY{
-            strokeColor = UIColor.deepRed.cgColor
+            strokeColor = UIColor.upColor
            
         } else if startY < endY {
-            strokeColor = UIColor.deepBlue.cgColor
+            strokeColor = UIColor.downColor
             
         } else {
             strokeColor = UIColor.black.cgColor
@@ -102,8 +131,8 @@ private extension ClubView {
         let curText = String(describing: endPrice) + String(describing: "\n[\(currentIndex)]")
          
         textLayer.string = curText
-        textLayer.foregroundColor = UIColor.red.cgColor
-        textLayer.backgroundColor = UIColor.white.withAlphaComponent(0.2).cgColor
+        textLayer.foregroundColor = textColor  
+        textLayer.backgroundColor = textBackColor
         textLayer.contentsScale = UIScreen.main.scale
         return textLayer
     }
