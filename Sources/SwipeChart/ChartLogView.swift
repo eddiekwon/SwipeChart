@@ -29,6 +29,7 @@ public class ChartLogView: UIScrollView {
     var isFirstVisit = true
     
     private var barIndexBasedOnScrollOffset: Int = 0
+    public var defaultBarWidth: CGFloat = 10  
 }
 
 public  extension ChartLogView {
@@ -80,7 +81,7 @@ extension ChartLogView {
                          contentView: barView,
                          maxWidth: 4000,
                          useDebugColor: useDebug)
-        
+        self.bounces = false
         self.delegate = self
         addPinches()
     }
@@ -96,6 +97,7 @@ extension ChartLogView {
             return
         }
         prepareAllValues()
+        barView.gridDevider = gridDevider
         isFirstVisit = false
     }
 }
@@ -134,8 +136,9 @@ extension ChartLogView {
     
     public func prepareAllValues() {
         // must be called ONCE since related to pinch gesture
-        lastSavedBarWidth_onlyForPinch = tenBarWidth
-        selfLastUpdateBarWidth = tenBarWidth
+        lastSavedBarWidth_onlyForPinch = defaultBarWidth
+        selfLastUpdateBarWidth = defaultBarWidth
+ 
         pad10 = minBarPadWidth
         barView.prepareFirstTime(barWidth: lastSavedBarWidth_onlyForPinch,
                                  paddingSize: pad10,
