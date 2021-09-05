@@ -60,7 +60,7 @@ public class ClubView: UIView {
 }
 
 public extension ClubView {
-    public func redraw(barWidth: CGFloat, range: CountableClosedRange<Int>) {
+    func redraw(barWidth: CGFloat, range: CountableClosedRange<Int>, handler: (() -> Void)? = nil) {
         assert(chartFullHeight > 0, "should call prepare")
         let cutBars = Array<BarDto>(self.chartDatas[range])
         let dataCut = convertAxis(chartDatas: cutBars)
@@ -68,7 +68,8 @@ public extension ClubView {
         for data in dataCut {
             self.drawSingleBar(width: barWidth, prices: data)
         }
-         drawGrids(viewSize: self.frame.size)
+        drawGrids(viewSize: self.frame.size)
+        handler?()
     }
 }
 
@@ -114,7 +115,7 @@ private extension ClubView {
         } else {
             strokeColor = UIColor.black.cgColor
         }
-        print("startY,\(startY) - end:\(endY)")
+        logChart("startY,\(startY) - end:\(endY)")
         freshLayer.path = bzPath.cgPath
         freshLayer.strokeColor = isLowHigh ? UIColor.black.cgColor : strokeColor
         freshLayer.lineWidth = isLowHigh ? 0.5 : barwidth
@@ -199,7 +200,7 @@ extension ClubView {
             .forEach { $0.removeFromSuperlayer() }
         
         #if DEBUG
-        print("rrrr &&&& - \(layerCount), caShapre cnt:\(shapeCount)")
+        logChart("rrrr &&&& - \(layerCount), caShapre cnt:\(shapeCount)")
         layer.olog()
         #endif
     }

@@ -15,8 +15,8 @@ public class ChartLogView: UIScrollView {
     private var lastSavedBarWidth_onlyForPinch: CGFloat = 0
     private var selfLastUpdateBarWidth: CGFloat = 0
     
-    private var chartContentHeight: CGFloat = 0
-    private var chartContentWidth: CGFloat = 0
+    public private (set) var chartContentHeight: CGFloat = 0
+    public private (set) var chartContentWidth: CGFloat = 0
     private var barIndexBasedOnScrollOffset: Int = 0
   
     var maxBarWidth: CGFloat = 0
@@ -24,13 +24,15 @@ public class ChartLogView: UIScrollView {
     var tenBarWidth: CGFloat = 10
     var minBarWidth: CGFloat = 3
     var minBarPadWidth: CGFloat = 1
-    private var pad10: CGFloat = 0  
+    public private (set) var pad10: CGFloat = 0  
    
     var isFirstVisit = true
     
+    public var useRandommizedLastTick: Bool = false
     public var defaultBarWidth: CGFloat = 10  
     public var gridDevider: CGFloat = 32
 
+    var timer: Timer?
 }
 
 public extension ChartLogView {
@@ -39,7 +41,7 @@ public extension ChartLogView {
     }
 }
 
-public extension ChartLogView {
+extension ChartLogView {
     
     public func setupColors(rise: UIColor, down: UIColor, text: UIColor, textBack: UIColor, xGrid: UIColor, yGrid: UIColor) {
         barView.setupColors(rise: rise, down: down, text: text, textBack: textBack, xGrid: xGrid, yGrid: yGrid)
@@ -48,19 +50,21 @@ public extension ChartLogView {
         barView.backgroundColor = color
     }
 
-    func feed(datas: [BarDto]) {
+    public func feed(datas: [BarDto]) {
         bars = datas
         barView.feed(datas: datas)
         let minMax = self.currentIndexOfBars(0)
-        asyncDrawInPeriod(bars: datas, range: minMax, startOffset: 0)
+        asyncDrawInPeriod(bars: datas, range: minMax, startOffset: 0) {
+            self.scrollToCurrentTick()
+            self.fireTimer()
+        }
     }
      
-    func asyncDrawInPeriod(bars rawData: [BarDto], range: CountableClosedRange<Int>, startOffset: CGFloat) {
+    func asyncDrawInPeriod(bars rawData: [BarDto], range: CountableClosedRange<Int>, startOffset: CGFloat, firstActionHandler: (()->Void)? = nil) {
         
-        print("selfLastUpdateBarWidth:\(selfLastUpdateBarWidth)")
+        logChart("selfLastUpdateBarWidth:\(selfLastUpdateBarWidth)")
         DispatchQueue.main.async {
-            self.barView.redraw(barWidth: self.selfLastUpdateBarWidth, range: range)
-            
+            self.barView.redraw(barWidth: self.selfLastUpdateBarWidth, range: range, handler: firstActionHandler)
 //            self.scaleLabel.text = self.selfLastUpdateBarWidth.precise2 + "num: [\(String(describing: self.barNumberOfThisScale()))]"
             self.barView.setNeedsDisplay()
         }
@@ -75,10 +79,10 @@ public extension ChartLogView {
          
     }
     
-    // how may bars in current scale
-    func barNumberOfThisScale() -> Int {
+    /// how may bars in current scale
+    public func barNumberOfThisScale() -> Int {
         let howManyBars = chartContentWidth / barAndPad
-        print("num Of bars:\(howManyBars) = chartContentWidth: \(chartContentWidth), barAndPad:\(barAndPad) ")
+        logChart("num Of bars:\(howManyBars) = chartContentWidth: \(chartContentWidth), barAndPad:\(barAndPad) ")
         return Int(floor(howManyBars))
     }
 }
@@ -119,16 +123,32 @@ extension ChartLogView: UIScrollViewDelegate {
         }
         let minMax = self.currentIndexOfBars(offsetX)
         
-        print("minMax:\(minMax), x:[\(offsetX)]")
+        logChart("minMax:\(minMax), x:[\(offsetX)]")
         if minMax.lowerBound == self.barIndexBasedOnScrollOffset {
             return
         }
          
-        // other way to do this?
-        if minMax.upperBound >= bars.count {
+        // case 1
+        if !minMax.contains(bars.count-1) && minMax.upperBound > bars.count {
+            timer?.invalidate()
+            self.timer = nil
             return
         }
-         
+          
+        // case 2
+        if minMax.contains(bars.count-1) || minMax.upperBound >= bars.count{
+            // 최종 ticker가 보이는 상황이라면 timer에서 화면 갱신하도록함.
+            logChart("inclusive : \(minMax), cnt\(bars.count-1)")
+            if self.timer == nil {
+                fireTimer()
+            }
+            return
+        }
+          
+        // other cases
+        logChart("inclusive x :\(minMax), cnt\(bars.count-1)")
+        timer?.invalidate()
+        self.timer = nil
         
         self.barView.removeShapeNTextLayers()
         self.barView.prepare(paddingSize: self.pad10,
@@ -217,7 +237,7 @@ extension ChartLogView: UIGestureRecognizerDelegate {
         }
         let scaledWidth = lastSavedBarWidth_onlyForPinch * orgScale
         
-        print("newVal: \(scaledWidth.precise2) \t =  curBarWidth:\(lastSavedBarWidth_onlyForPinch.precise2) * scale:\(orgScale.precise2)")
+        logChart("newVal: \(scaledWidth.precise2) \t =  curBarWidth:\(lastSavedBarWidth_onlyForPinch.precise2) * scale:\(orgScale.precise2)")
         
         selfLastUpdateBarWidth = scaledWidth
         barView.removeShapeNTextLayers()

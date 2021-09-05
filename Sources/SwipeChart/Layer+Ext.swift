@@ -8,16 +8,16 @@
 import UIKit
 extension CALayer {
     public func olog() {
-        print(#function, "===🚨start======= sublayers cnt :\(String(describing: sublayers?.count))")
+        logChart(#function, "===🚨start======= sublayers cnt :\(String(describing: sublayers?.count))")
         guard let allLayers = sublayers else {
-            print("allLayers zero")
+            logChart("allLayers zero")
             return
         }
         for layer in allLayers where layer is CAShapeLayer {
             let shape = layer as! CAShapeLayer
-            print("namedd:\(shape.name) boundingBox:\(shape.path?.boundingBox)")
+            logChart("namedd:\(shape.name) boundingBox:\(shape.path?.boundingBox)")
         }
-        print(#function, "===👩🏻‍🔧end===")
+        logChart(#function, "===👩🏻‍🔧end===")
     }
 }
 

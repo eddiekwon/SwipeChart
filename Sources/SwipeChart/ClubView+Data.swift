@@ -11,7 +11,7 @@ extension ClubView {
   
         let bars = chartDatas
         let mapped = chartDatas.map { "\($0.opening_price)" }
-        print("items:\(mapped)")
+        logChart("items:\(mapped)")
          
         let maxPrices = bars.map { CGFloat($0.high_price)  }
         let minPrices = bars.map { CGFloat($0.low_price)  }
