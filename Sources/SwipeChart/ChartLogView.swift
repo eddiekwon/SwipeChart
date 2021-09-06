@@ -34,8 +34,7 @@ public class ChartLogView: UIScrollView {
 
     var timer: Timer?
   
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    public func willBeHidden() { 
         timer?.invalidate()
         timer = nil
     }
