@@ -33,6 +33,12 @@ public class ChartLogView: UIScrollView {
     public var gridDevider: CGFloat = 32
 
     var timer: Timer?
+  
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        timer?.invalidate()
+        timer = nil
+    }
 }
 
 public extension ChartLogView {
