@@ -1,6 +1,6 @@
 //
 //  BarDto.swift
-//  DrawBar101
+//  SwipeChart
 //
 //  Created by eddie kwon on 2021/09/02.
 //
@@ -19,6 +19,7 @@ public struct BarDto {
     let timestamp: TimeInterval?
     let candle_acc_trade_price: Double
     let candle_acc_trade_volume: Double
+    let change_price: Double
     
     let unit: Int?
     
@@ -36,9 +37,10 @@ public struct BarDto {
     }
      
     public init(candle_date_time_utc: String, candle_date_time_local: String,
-         opening_price: Double, high_price: Double, low_price: Double, trade_price: Double,
-         timestamp: TimeInterval?, candle_acc_trade_price: Double, candle_acc_trade_volume: Double,
-         unit: Int?) {
+                opening_price: Double, high_price: Double, low_price: Double, trade_price: Double,
+                timestamp: TimeInterval?, candle_acc_trade_price: Double, candle_acc_trade_volume: Double,
+                change_price: Double,
+                unit: Int?) {
         
         self.candle_date_time_utc    = candle_date_time_utc
         self.candle_date_time_local  = candle_date_time_local
@@ -49,6 +51,7 @@ public struct BarDto {
         self.timestamp               = timestamp
         self.candle_acc_trade_price  = candle_acc_trade_price
         self.candle_acc_trade_volume = candle_acc_trade_volume
+        self.change_price = change_price
         self.unit                    = unit
          
     }

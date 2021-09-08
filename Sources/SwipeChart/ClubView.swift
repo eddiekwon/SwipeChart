@@ -1,6 +1,6 @@
 //
 //  OStickView.swift
-//  DrawBar101
+//  SwipeChart
 //
 //  Created by eddie kwon on 2021/08/29.
 //
@@ -11,8 +11,17 @@ private let errorValue: CGFloat = -99
 
 public class ClubView: UIView {
     public var chartFullHeight: CGFloat = 0
+    public var chartPercentVersusVolumeArea: CGFloat = 0.9
     public var chartDatas: [BarDto] = []
      
+    public var chartPortionHeight: CGFloat {
+        chartFullHeight * chartPercentVersusVolumeArea
+    }
+    
+    public var volumePortionHeight: CGFloat {
+        chartFullHeight * (1-chartPercentVersusVolumeArea)
+    }
+    
     public var xCurBarPos: CGFloat = 0
     public var paddingBar: CGFloat = errorValue
   
@@ -31,7 +40,11 @@ public class ClubView: UIView {
     private var textBackDarkColor: CGColor = UIColor.white.withAlphaComponent(0.2).cgColor
     
     private var useTextPrice: Bool = false
-   
+    public var gridDevider: CGFloat = 32
+}
+
+extension ClubView {
+    
     public func setupColors(rise: UIColor, down: UIColor, text: UIColor, textBack: UIColor, xGrid: UIColor, yGrid: UIColor) {
         upColor = rise.cgColor
         downColor = down.cgColor
@@ -40,8 +53,7 @@ public class ClubView: UIView {
         xGridColor = xGrid.cgColor
         yGridColor = yGrid.cgColor
     }
-    public var gridDevider: CGFloat = 32
-    
+ 
     public func prepareFirstTime(barWidth: CGFloat, paddingSize: CGFloat, viewHeight: CGFloat) {
         paddingBar = paddingSize
         xCurBarPos = 0
@@ -60,22 +72,29 @@ public class ClubView: UIView {
 }
 
 public extension ClubView {
-    func redraw(barWidth: CGFloat, range: CountableClosedRange<Int>, handler: (() -> Void)? = nil) {
+    typealias ActionHandler = () -> Void
+    func redraw(barWidth: CGFloat, range: CountableClosedRange<Int>, handler: ActionHandler? = nil) {
         assert(chartFullHeight > 0, "should call prepare")
         let cutBars = Array<BarDto>(self.chartDatas[range])
         let dataCut = convertAxis(chartDatas: cutBars)
-        
+        let volumeAndUpDownCut: [(CGFloat, Bool)] = convertVolumes(chartDatas: cutBars)
+
+        var idx = 0
         for data in dataCut {
-            self.drawSingleBar(width: barWidth, prices: data)
+            let eachVolume = volumeAndUpDownCut[idx]
+            self.drawSingleBar(width: barWidth, prices: data, vol: eachVolume.0, isRise: eachVolume.1)
+            idx += 1
         }
+        let pri = "xCurBarPos: \(self.xCurBarPos)"
+        logChart("pri__cc:\(pri)")
         drawGrids(viewSize: self.frame.size)
         handler?()
     }
 }
 
 private extension ClubView {
-    func drawSingleBar(width: CGFloat, prices: OpenClose) {
-         
+    func drawSingleBar(width: CGFloat, prices: OpenClose, vol: CGFloat, isRise: Bool) {
+
         guard paddingBar >= 0 else {
             assert(false, "should call prepare()")
             return
@@ -84,12 +103,16 @@ private extension ClubView {
         let barLayer = makeBar(xCurBarPos + halfSizeOfBar_calayerLeftOffset, startY: prices.openVal, endY: prices.closeVal, barwidth: width)
         let lowHighLayer = makeBar(xCurBarPos + halfSizeOfBar_calayerLeftOffset, startY: prices.highVal, endY: prices.lowVal, barwidth: width, isLowHigh: true)
         
+        let volLayer = makeVolumeBar(xCurBarPos + halfSizeOfBar_calayerLeftOffset, startY: vol, barwidth: width, isRise: isRise)
+
         let textLayer = makeTextLayer(currentIndex: xCurBarPos, startPrice: prices.openVal, endPrice: prices.closeVal)
          
         xCurBarPos = xCurBarPos + width + paddingBar
         
         layer.addSublayer(lowHighLayer)
         layer.addSublayer(barLayer)
+        layer.addSublayer(volLayer)
+        
         if let randomNumbers = [1, 2, 3, 4, 5].randomElement(), randomNumbers == 1 {
             layer.addSublayer(textLayer)
         } 
@@ -123,6 +146,32 @@ private extension ClubView {
         return freshLayer
     }
     
+    func makeVolumeBar(_ xf: CGFloat , startY: CGFloat, barwidth: CGFloat, isRise: Bool = false) -> CAShapeLayer {
+        let freshLayer = CAShapeLayer()
+        let bzPath = UIBezierPath()
+        
+        // draw 1 point if startY == endY
+        //let modifiedEndY = startY == endY ? endY + 1.0 : endY
+        // xf position is the same, only y-axis matters.
+        let max = chartFullHeight
+        bzPath.move(to: CGPoint(x: xf, y: startY))           // ex) x 0, y 30
+        bzPath.addLine(to: CGPoint(x: xf, y: max))  // ex) x 0, y 7.22
+ 
+        let strokeColor: CGColor
+        if isRise {
+            strokeColor = UIColor.deepRed.cgColor
+           
+        } else {
+            strokeColor = UIColor.deepBlue.cgColor
+        }
+         
+        freshLayer.path = bzPath.cgPath
+        freshLayer.strokeColor = strokeColor
+        freshLayer.lineWidth = barwidth
+        freshLayer.strokeEnd = 1
+        return freshLayer
+    }
+    
     func makeTextLayer(currentIndex: CGFloat, startPrice: CGFloat, endPrice: CGFloat) -> CATextLayer {
         let textLayer = CATextLayer()
         let yAdjustedText = startPrice - 50
@@ -139,53 +188,7 @@ private extension ClubView {
     }
     
 }
-
-extension ClubView {
-    func drawGrids(viewSize: CGSize) {
-        
-        let staticSize = viewSize.width / gridDevider
-        
-        let gridHeightSize = staticSize
-        let gridWidthSize = staticSize
-        
-        var xCurrentPos: CGFloat = 0
-        while xCurrentPos <= viewSize.width {
-            addVerticalGrid(xCurrentPos)
-            xCurrentPos += gridWidthSize
-        }
-        
-        var yCurrentPos: CGFloat = 0
-        while yCurrentPos <= viewSize.height {
-            addHorizontalGrid(yCurrentPos)
-            yCurrentPos += gridHeightSize
-        }
-    }
-    
-    func addVerticalGrid(_ xf: CGFloat) {
-        let Path = UIBezierPath()
-        Path.move(to: CGPoint(x: xf, y: 0))
-        Path.addLine(to: CGPoint(x: xf, y: frame.height))
-        Path.close()
-        
-        let shapeLayer1 = CAShapeLayer()
-        shapeLayer1.path = Path.cgPath
-        shapeLayer1.strokeColor = UIColor.gray.withAlphaComponent(0.2).cgColor
-        layer.addSublayer(shapeLayer1)
-    }
-    
-    func addHorizontalGrid(_ yf: CGFloat) {
-        let Path = UIBezierPath()
-        Path.move(to: CGPoint(x: 0, y: yf))
-        Path.addLine(to: CGPoint(x: frame.width, y: yf))
-        Path.close()
-        
-        let shapeLayer2 = CAShapeLayer()
-        shapeLayer2.path = Path.cgPath
-        shapeLayer2.strokeColor = UIColor.gray.withAlphaComponent(0.2).cgColor
-        layer.addSublayer(shapeLayer2)
-    }
-}
-
+ 
 extension ClubView {
     public func removeShapeNTextLayers() {
         xCurBarPos = 0

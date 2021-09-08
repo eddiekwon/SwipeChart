@@ -1,13 +1,12 @@
 //
 //  ChartLogView+Debug.swift
-//  
+//  SwipeChart
 //
-//  Created by sgm1 on 2021/09/05.
+//  Created by eddie kwon on 2021/09/05.
 //
 
 import UIKit
-
-
+ 
 extension ChartLogView {
     func fireTimer() {
         
@@ -41,8 +40,9 @@ extension ChartLogView {
     
     public func scrollToCurrentTick() {
         let xToMove = barAndPad * CGFloat(bars.count) - frame.width
-        let point = CGPoint(x: xToMove, y: 0)
-        setContentOffset(point, animated: true)
+        let plusBarOffset = xToMove + barAndPad
+        let point = CGPoint(x: plusBarOffset, y: 0)
+        setContentOffset(point, animated: false)
     }
     
     func makeRandomizeDto() {
@@ -65,6 +65,7 @@ extension ChartLogView {
                              timestamp: last.timestamp,
                              candle_acc_trade_price: last.candle_acc_trade_price,
                              candle_acc_trade_volume: last.candle_acc_trade_volume,
+                             change_price: last.change_price,
                              unit: last.unit)
         bars.removeLast()
         bars.append(newLast)

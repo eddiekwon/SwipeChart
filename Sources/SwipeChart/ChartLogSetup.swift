@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  SwipeChart
 //  
 //
 //  Created by eddie kwon on 2021/09/05.

@@ -1,6 +1,6 @@
 //
 //  ChartLogView.swift
-//  DrawBar101
+//  SwipeChart
 //
 //  Created by eddie kwon on 2021/09/01.
 //
@@ -18,7 +18,8 @@ public class ChartLogView: UIScrollView {
     public private (set) var chartContentHeight: CGFloat = 0
     public private (set) var chartContentWidth: CGFloat = 0
     private var barIndexBasedOnScrollOffset: Int = 0
-  
+    private var chartFillPercent: CGFloat = 1 //0.90 // max: 1
+    
     var maxBarWidth: CGFloat = 0
     var fixedBarWidth: CGFloat = 20
     var tenBarWidth: CGFloat = 10
@@ -55,6 +56,11 @@ extension ChartLogView {
         barView.backgroundColor = color
     }
 
+    public func changeFillingPercent(_ chartFillingAreaRatio: CGFloat) {
+        assert(chartFillingAreaRatio <= 1, "ratio should be 0.1 ~ 0.90")
+        barView.chartPercentVersusVolumeArea = chartFillingAreaRatio
+    }
+    
     public func feed(datas: [BarDto]) {
         bars = datas
         barView.feed(datas: datas)
@@ -70,14 +76,12 @@ extension ChartLogView {
         logChart("selfLastUpdateBarWidth:\(selfLastUpdateBarWidth)")
         DispatchQueue.main.async {
             self.barView.redraw(barWidth: self.selfLastUpdateBarWidth, range: range, handler: firstActionHandler)
-//            self.scaleLabel.text = self.selfLastUpdateBarWidth.precise2 + "num: [\(String(describing: self.barNumberOfThisScale()))]"
             self.barView.setNeedsDisplay()
         }
     }
     
     func currentIndexOfBars(_ offset: CGFloat) -> CountableClosedRange<Int> {
-        let numOfBar = barNumberOfThisScale()
-        // 시작 시점의 bar index구함 = 현 offset / (bar+padding 총 width)
+        let numOfBar = barNumberOfThisScale() 
         let beginAtOffset = Int(offset / CGFloat(barAndPad))
         let end = beginAtOffset + numOfBar
         return beginAtOffset...end
@@ -141,8 +145,7 @@ extension ChartLogView: UIScrollViewDelegate {
         }
           
         // case 2
-        if minMax.contains(bars.count-1) || minMax.upperBound >= bars.count{
-            // 최종 ticker가 보이는 상황이라면 timer에서 화면 갱신하도록함.
+        if minMax.contains(bars.count-1) || minMax.upperBound >= bars.count{ 
             logChart("inclusive : \(minMax), cnt\(bars.count-1)")
             if self.timer == nil {
                 fireTimer()
@@ -171,8 +174,8 @@ extension ChartLogView {
         // must be called ONCE since related to pinch gesture
         lastSavedBarWidth_onlyForPinch = defaultBarWidth
         selfLastUpdateBarWidth = defaultBarWidth
- 
         pad10 = minBarPadWidth
+        
         barView.prepareFirstTime(barWidth: lastSavedBarWidth_onlyForPinch,
                                  paddingSize: pad10,
                                  viewHeight: chartContentHeight)
@@ -246,10 +249,10 @@ extension ChartLogView: UIGestureRecognizerDelegate {
         
         selfLastUpdateBarWidth = scaledWidth
         barView.removeShapeNTextLayers()
-        redraw()
+        redrawIfPinches()
     }
     
-    func redraw() {
+    func redrawIfPinches() {
         let minMax = self.currentIndexOfBars(0)
         self.asyncDrawInPeriod(bars: self.bars, range: minMax, startOffset: 0)
     }

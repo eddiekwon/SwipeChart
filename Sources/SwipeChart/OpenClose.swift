@@ -1,6 +1,6 @@
 //
 //  OpenClose.swift
-//  DrawBar101
+//  SwipeChart
 //
 //  Created by eddie kwon on 2021/09/02.
 //

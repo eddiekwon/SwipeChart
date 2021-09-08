@@ -1,6 +1,6 @@
 //
 //  Layer+Ext.swift
-//  DrawBar101
+//  SwipeChart
 //
 //  Created by eddie kwon on 2021/08/29.
 //
