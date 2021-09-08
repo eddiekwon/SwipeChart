@@ -122,7 +122,7 @@ extension ChartLogView {
 }
 
 extension ChartLogView {
-    func prepare(on parentView: UIView, useDebug: Bool = false) {
+    public func prepare(on parentView: UIView, useDebug: Bool = false) {
         attachScrollView(on: parentView, scrollView: self,
                          contentView: barView,
                          maxWidth: 4000,
