@@ -7,7 +7,7 @@
 
 import UIKit
 extension ClubView {
-    public    func convertAxis(chartDatas bars: [BarDto]) -> [OpenClose] {
+    public func convertAxis(chartDatas bars: [BarDto]) -> [OpenClose] {
         let maxPrices = bars.map { CGFloat($0.high_price)  }
         let minPrices = bars.map { CGFloat($0.low_price)  }
         let maxY =  maxPrices.max()!

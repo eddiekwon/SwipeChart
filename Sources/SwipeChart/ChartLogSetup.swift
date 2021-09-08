@@ -13,7 +13,8 @@ public class SwipeChartSetup {
     private init() {}
 }
  
-func logChart(_ items: Any..., separator: String = " -> ", terminator: String = "\n", function: String = #function) {
+func logChart(_ items: Any..., separator: String = " -> ", terminator: String = "\n", function: String = #function, ignore: Bool = false) {
+    guard !ignore else { return }
     guard SwipeChartSetup.shared.useLog else {
         return
     }

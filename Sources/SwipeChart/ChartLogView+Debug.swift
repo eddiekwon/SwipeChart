@@ -30,21 +30,14 @@ extension ChartLogView {
                                          newScrollOffset: xToMove,
                                          viewHeight: self.chartContentHeight)
                     self.barView.feed(datas: self.bars)
-                    self.asyncDrawInPeriod(bars: self.bars, range: minMax, startOffset: 0)
+                    self.asyncDrawInPeriod(bars: self.bars, range: minMax)
                 }
             } else {
                 // Fallback on earlier versions
             }
         }
     }
-    
-    public func scrollToCurrentTick() {
-        let xToMove = barAndPad * CGFloat(bars.count) - frame.width
-        let plusBarOffset = xToMove + barAndPad
-        let point = CGPoint(x: plusBarOffset, y: 0)
-        setContentOffset(point, animated: false)
-    }
-    
+     
     func makeRandomizeDto() {
         guard let last = bars.last else { return }
         logChart("last item: \(last.closeVal), bar cnt: \(bars.count)")
